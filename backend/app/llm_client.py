@@ -1,5 +1,6 @@
 # app/llm_client.py
 
+import braintrust
 import os
 import json
 import logging
@@ -58,6 +59,18 @@ def call_openrouter(
             temperature=0.0,
         )
         
+        # Log token usage to Braintrust if a span is active
+        try:
+            span = braintrust.current_span()
+            if span and hasattr(response, "usage") and response.usage:
+                span.log(metrics={
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens,
+                })
+        except Exception as te:
+            logger.warning("Failed to log token usage to Braintrust span: %s", str(te))
+
         content = response.choices[0].message.content
         if not content:
             raise OpenRouterCallError("Empty response from OpenRouter")
@@ -102,9 +115,19 @@ def structure_incident_data(raw_text: str, provider: str = "openrouter") -> dict
     Ensure 'timeframe.start' is in ISO 8601 format.
     """
     
-    return generate_agent_response(
-        instructions=instructions,
-        incident_data={"raw_input": raw_text},
-        output_schema=INCIDENT_INPUT_SCHEMA,
-        provider=provider
-    )
+    with braintrust.start_span(
+        name="structure-incident-data",
+        input={"raw_text_length": len(raw_text)}
+    ) as span:
+        try:
+            result = generate_agent_response(
+                instructions=instructions,
+                incident_data={"raw_input": raw_text},
+                output_schema=INCIDENT_INPUT_SCHEMA,
+                provider=provider
+            )
+            span.log(output=result)
+            return result
+        except Exception as e:
+            span.log(output={"error": str(e)}, status="error")
+            raise
