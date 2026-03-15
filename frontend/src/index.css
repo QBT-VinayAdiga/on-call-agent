@@ -1,15 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
+  --bg: #e0e5ec;
+  --shadow-dark: #a3b1c6;
+  --shadow-light: #ffffff;
+  --text: #4a5568;
+  --accent: #3b82f6;
+}
+
+.dark {
+  --bg: #1a1f2c;
+  --shadow-dark: #12161f;
+  --shadow-light: #222839;
+  --text: #e2e8f0;
+  --accent: #10b981;
 }
 
 body {
-  background-color: var(--background);
-  color: white;
+  background-color: var(--bg);
+  color: var(--text);
   min-height: 100vh;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Neumorphic Utilities */
+.neu-flat {
+  background: var(--bg);
+  box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+}
+
+.neu-pressed {
+  background: var(--bg);
+  box-shadow: inset 9px 9px 16px var(--shadow-dark), inset -9px -9px 16px var(--shadow-light);
+}
+
+.neu-button {
+  background: var(--bg);
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.neu-button:active {
+  box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  transform: scale(0.98);
 }
 
 .aurora {
