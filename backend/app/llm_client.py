@@ -36,7 +36,7 @@ def call_openrouter(
     instructions: str,
     incident_data: dict,
     output_schema: dict,
-    model: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001"),
+    model: str = os.getenv("OPENROUTER_MODEL", "openrouter/free"),
 ) -> dict:
     """Call OpenRouter."""
     if not openrouter_client:
