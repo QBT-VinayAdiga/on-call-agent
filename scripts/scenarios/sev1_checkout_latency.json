@@ -1,0 +1,36 @@
+{
+  "incident_id": "INC-20260315-001",
+  "title": "SEV1: Checkout Service latency spike in us-central1",
+  "severity": "SEV1",
+  "timeframe": {
+    "start": "2026-03-15T14:00:00Z"
+  },
+  "alerts": [
+    {
+      "name": "CheckoutLatencyHigh",
+      "value": "4500ms",
+      "threshold": "1000ms",
+      "fired_at": "2026-03-15T14:03:00Z"
+    }
+  ],
+  "logs": [
+    {
+      "timestamp": "2026-03-15T14:04:00Z",
+      "level": "ERROR",
+      "message": "upstream service timeout connecting to inventory-db-01",
+      "service": "checkout-api"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "checkout_error_rate",
+      "value": 15.4,
+      "unit": "percent",
+      "timestamp": "2026-03-15T14:05:00Z"
+    }
+  ],
+  "runbook_excerpt": "If checkout latency spikes, check inventory-db connection pool and scale read replicas if CPU > 80%.",
+  "constraints": {
+    "no_rollback": false
+  }
+}

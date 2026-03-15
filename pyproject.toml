@@ -1,0 +1,28 @@
+[project]
+name = "on-call-copilot"
+version = "2.0.0"
+description = "On-Call Copilot — LangGraph + Gemini + Braintrust"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "langgraph",
+    "google-genai",
+    "braintrust",
+    "jsonschema",
+    "structlog",
+    "tenacity",
+    "python-dotenv",
+    "pytest",
+    "httpx",
+    "pybreaker"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B"]
+ignore = []

@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+}
+
+body {
+  background-color: var(--background);
+  color: white;
+  min-height: 100vh;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.aurora {
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  filter: blur(100px);
+  opacity: 0.15;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}

@@ -1,50 +1,57 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: template → 1.0.0
+- List of modified principles:
+  - [PRINCIPLE_1_NAME] → I. Parallel Execution
+  - [PRINCIPLE_2_NAME] → II. Schema-Guaranteed JSON Output
+  - [PRINCIPLE_3_NAME] → III. Graceful Degradation & Isolation
+  - [PRINCIPLE_4_NAME] → IV. Pre-LLM Secret Redaction
+  - [PRINCIPLE_5_NAME] → V. Continuous Improvement via Evals
+- Added sections:
+  - Core Technology Stack
+  - Development & Quality Standards
+- Removed sections: None
+- Templates requiring updates:
+  - .specify/templates/tasks-template.md (✅ updated)
+  - .specify/templates/plan-template.md (✅ updated)
+- Follow-up TODOs: None
+-->
+
+# On-Call Copilot Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Parallel Execution
+All specialized agents (Triage, Summary, Comms, PIR) MUST run in parallel using the LangGraph `Send` API. This ensures fast response times and prevents a single agent's failure from blocking others.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Schema-Guaranteed JSON Output
+Every agent MUST enforce its output format via Gemini's native JSON mode and a strict `response_schema`. This guarantees that downstream consumers receive predictable, structured data.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Graceful Degradation & Isolation
+Agents MUST be stateless and isolated. A failure in one agent SHOULD NOT cause the entire request to fail. The system MUST return partial results where possible, explicitly flagging errors in telemetry.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Pre-LLM Secret Redaction
+All incident data MUST pass through a redaction pipeline BEFORE being sent to any LLM. This prevents sensitive information (API keys, tokens, PII) from ever reaching model providers or being logged.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Continuous Improvement via Evals
+All prompt and logic changes MUST be validated against a "golden set" of incident data using Braintrust evals. Performance metrics MUST be tracked to prevent regressions.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Core Technology Stack
+- **Orchestration**: LangGraph StateGraph
+- **LLM**: Google Gemini 2.0 Flash (via Vertex AI)
+- **API Framework**: FastAPI
+- **Observability**: Braintrust (Tracing + Evals)
+- **Infrastructure**: GCP Cloud Run
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development & Quality Standards
+- **Local Development**: MUST support `MOCK_MODE` to allow development and CI without live LLM dependencies.
+- **Testing**: Every agent node MUST have unit tests for its schema and logic. Integration tests SHOULD verify live LLM behavior.
+- **CI/CD**: Automated deployment via GitHub Actions, including mandatory eval steps before production rollout.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- The Constitution is the source of truth for all architectural decisions.
+- Amendments require a version bump and updated Sync Impact Report.
+- All Pull Requests MUST be reviewed for compliance with Core Principles.
+- Versioning follows Semantic Versioning rules (MAJOR.MINOR.PATCH).
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-03-15 | **Last Amended**: 2026-03-15
