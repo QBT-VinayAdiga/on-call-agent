@@ -33,6 +33,10 @@ frontend/node_modules/
 # Docker
 Dockerfile*
 .dockerignore
+docker-compose.yml
+podman-compose.yml
+.superpowers/
+.gemini/
 
 # IDEs
 .vscode/
