@@ -3,7 +3,7 @@
 import time
 import braintrust
 from app.graph import AgentState
-from app.gemini_client import generate_agent_response, GeminiCallError
+from app.llm_client import generate_agent_response, LLMCallError
 from app.schemas import COMMS_OUTPUT_SCHEMA, COMMS_INSTRUCTIONS
 
 def comms_node(state: AgentState) -> dict:
@@ -17,17 +17,19 @@ def comms_node(state: AgentState) -> dict:
     start = time.monotonic()
 
     try:
+        provider = state.get("telemetry", {}).get("provider_override", "gemini")
         response = generate_agent_response(
             instructions=COMMS_INSTRUCTIONS,
             incident_data=state["incident"],
             output_schema=COMMS_OUTPUT_SCHEMA,
+            provider=provider
         )
         latency_ms = (time.monotonic() - start) * 1000
         span.log(output=response, metrics={"latency_ms": latency_ms})
         span.end()
         return {"comms_output": response}
 
-    except GeminiCallError as e:
+    except LLMCallError as e:
         latency_ms = (time.monotonic() - start) * 1000
         span.log(
             output={"_error": str(e)},

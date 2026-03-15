@@ -3,7 +3,7 @@
 import time
 import braintrust
 from app.graph import AgentState
-from app.gemini_client import generate_agent_response, GeminiCallError
+from app.llm_client import generate_agent_response, LLMCallError
 from app.schemas import SUMMARY_OUTPUT_SCHEMA, SUMMARY_INSTRUCTIONS
 
 def summary_node(state: AgentState) -> dict:
@@ -17,17 +17,19 @@ def summary_node(state: AgentState) -> dict:
     start = time.monotonic()
 
     try:
+        provider = state.get("telemetry", {}).get("provider_override", "openrouter")
         response = generate_agent_response(
             instructions=SUMMARY_INSTRUCTIONS,
             incident_data=state["incident"],
             output_schema=SUMMARY_OUTPUT_SCHEMA,
+            provider=provider
         )
         latency_ms = (time.monotonic() - start) * 1000
         span.log(output=response, metrics={"latency_ms": latency_ms})
         span.end()
         return {"summary_output": response}
 
-    except GeminiCallError as e:
+    except LLMCallError as e:
         latency_ms = (time.monotonic() - start) * 1000
         span.log(
             output={"_error": str(e)},

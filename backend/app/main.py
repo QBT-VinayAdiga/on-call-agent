@@ -38,7 +38,14 @@ def get_graph():
 @api_router.post("/invoke")
 async def invoke_incident(request: Request) -> JSONResponse:
     try:
-        incident = await request.json()
+        payload = await request.json()
+        # Handle both direct incident object or {incident: {}, provider: ""}
+        if "incident" in payload:
+            incident = payload["incident"]
+            provider = payload.get("provider", "gemini")
+        else:
+            incident = payload
+            provider = "gemini"
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
@@ -57,6 +64,7 @@ async def invoke_incident(request: Request) -> JSONResponse:
         "incident_id": incident.get("incident_id"),
         "correlation_id": correlation_id,
         "severity": incident.get("severity"),
+        "provider": provider
     })
 
     # 4. Invoke the LangGraph StateGraph
@@ -68,7 +76,7 @@ async def invoke_incident(request: Request) -> JSONResponse:
         "pir_output": None,
         "correlation_id": correlation_id,
         "agent_errors": {},
-        "telemetry": {},
+        "telemetry": {"provider_override": provider},
     }
 
     try:
@@ -91,18 +99,32 @@ async def invoke_incident(request: Request) -> JSONResponse:
 
 @api_router.post("/structure")
 async def structure_incident(request: Request) -> JSONResponse:
+    correlation_id = get_correlation_id()
     try:
         data = await request.json()
         raw_text = data.get("text", "")
+        provider = data.get("provider", "openrouter")
+
+        logger.info("structure_request_received", extra={
+            "correlation_id": correlation_id,
+            "text_length": len(raw_text) if raw_text else 0,
+            "provider": provider
+        })
+        
         if not raw_text:
             raise HTTPException(status_code=400, detail="No text provided")
         
-        from app.gemini_client import structure_incident_data
-        structured_data = structure_incident_data(raw_text)
+        from app.llm_client import structure_incident_data
+        structured_data = structure_incident_data(raw_text, provider=provider)
         return JSONResponse(content=structured_data, status_code=200)
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error("structuring_failed", extra={"error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to structure incident data")
+        logger.error("structuring_failed", extra={
+            "error": str(e),
+            "correlation_id": correlation_id
+        })
+        raise HTTPException(status_code=500, detail=f"Failed to structure incident data: {str(e)}")
 
 # Register the API router
 app.include_router(api_router)

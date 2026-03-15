@@ -2,7 +2,7 @@
 
 import os
 import braintrust
-from app.gemini_client import generate_agent_response
+from app.llm_client import generate_agent_response
 from dotenv import load_dotenv
 
 # Load environment variables
