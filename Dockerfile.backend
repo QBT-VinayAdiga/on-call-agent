@@ -1,8 +1,9 @@
 FROM python:3.11-slim
 WORKDIR /app
 
-# Install uv
+# Install uv and curl
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
