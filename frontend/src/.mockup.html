@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphism Design Options</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --light-bg: #e0e5ec;
+            --light-shadow-dark: #a3b1c6;
+            --light-shadow-light: #ffffff;
+            
+            --dark-bg: #1a1f2c;
+            --dark-shadow-dark: #12161f;
+            --dark-shadow-light: #222839;
+        }
+
+        .neu-light-flat {
+            background: var(--light-bg);
+            box-shadow: 9px 9px 16px var(--light-shadow-dark), -9px -9px 16px var(--light-shadow-light);
+        }
+        .neu-light-pressed {
+            background: var(--light-bg);
+            box-shadow: inset 9px 9px 16px var(--light-shadow-dark), inset -9px -9px 16px var(--light-shadow-light);
+        }
+
+        .neu-dark-flat {
+            background: var(--dark-bg);
+            box-shadow: 9px 9px 16px var(--dark-shadow-dark), -9px -9px 16px var(--dark-shadow-light);
+        }
+        .neu-dark-pressed {
+            background: var(--dark-bg);
+            box-shadow: inset 9px 9px 16px var(--dark-shadow-dark), inset -9px -9px 16px var(--dark-shadow-light);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-slate-800">UI Refresh: Neumorphism Styles</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <!-- Option 1: Classic Soft -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-slate-700">1. Classic Soft</h2>
+                <div class="p-8 rounded-[30px] neu-light-flat flex flex-col items-center gap-6">
+                    <div class="w-20 h-20 rounded-full neu-light-flat flex items-center justify-center text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </div>
+                    <div class="w-full h-32 rounded-2xl neu-light-pressed p-4">
+                        <div class="w-1/2 h-4 rounded-full bg-slate-300 mb-2"></div>
+                        <div class="w-3/4 h-3 rounded-full bg-slate-200"></div>
+                    </div>
+                    <button class="px-8 py-3 rounded-full neu-light-flat font-bold text-slate-600 active:shadow-inner transition-all">
+                        Select
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 2: Dark Mode Tactical -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-slate-700">2. Dark Mode Tactical</h2>
+                <div class="p-8 rounded-[30px] neu-dark-flat flex flex-col items-center gap-6" style="background: #1a1f2c;">
+                    <div class="w-20 h-20 rounded-full neu-dark-flat flex items-center justify-center text-emerald-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <div class="w-full h-32 rounded-2xl neu-dark-pressed p-4">
+                        <div class="w-1/2 h-4 rounded-full bg-slate-800 mb-2"></div>
+                        <div class="w-3/4 h-3 rounded-full bg-slate-900"></div>
+                    </div>
+                    <button class="px-8 py-3 rounded-full neu-dark-flat font-bold text-slate-400 active:shadow-inner transition-all">
+                        Select
+                    </button>
+                </div>
+            </div>
+
+            <!-- Option 3: Neon Hybrid -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-slate-700">3. Neon Hybrid</h2>
+                <div class="p-8 rounded-[30px] neu-dark-flat flex flex-col items-center gap-6" style="background: #0f172a;">
+                    <div class="w-20 h-20 rounded-full neu-dark-flat flex items-center justify-center text-purple-500 glow-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    </div>
+                    <div class="w-full h-32 rounded-2xl neu-dark-pressed p-4 border border-blue-500/20">
+                        <div class="w-1/2 h-4 rounded-full bg-blue-500/20 mb-2"></div>
+                        <div class="w-3/4 h-3 rounded-full bg-blue-500/10"></div>
+                    </div>
+                    <button class="px-8 py-3 rounded-full bg-blue-600 text-white font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] active:scale-95 transition-all">
+                        Select
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

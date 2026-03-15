@@ -62,11 +62,11 @@ INCIDENT_INPUT_SCHEMA: dict = {
             }
         },
         "runbook_excerpt": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Relevant runbook section, if available"
         },
         "constraints": {
-            "type": "object",
+            "type": ["object", "null"],
             "properties": {
                 "no_rollback": {"type": "boolean"},
                 "change_freeze": {"type": "boolean"},
