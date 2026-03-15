@@ -1,116 +1,87 @@
 import { useState } from 'react';
-import { NeuCard } from './NeuCard';
-import { Sparkles, Trash2 } from 'lucide-react';
+import { M3Card } from './M3Card';
+import { Sparkles, Trash2, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Provider } from '../hooks/useIncidentAnalysis';
-
-const DEMO_SCENARIOS = [
-  {
-    label: 'Checkout Latency',
-    icon: '🛒',
-    text: `ALERTS:
-- CheckoutLatencyHigh: 4500ms (threshold: 1000ms) fired at 2026-03-15T14:03:00Z
-- CheckoutErrorRateHigh: 15.4% (threshold: 5%) fired at 2026-03-15T14:05:00Z
-
-LOGS:
-[2026-03-15T14:04:00Z] ERROR checkout-api: upstream service timeout connecting to inventory-db-01
-[2026-03-15T14:04:05Z] WARN checkout-api: retrying connection to inventory-db-01 (attempt 3/3)
-[2026-03-15T14:04:10Z] ERROR checkout-api: circuit breaker opened for inventory-service
-
-METRICS:
-- inventory_db_connection_pool_usage: 100%
-- inventory_db_cpu_utilization: 92%`
-  },
-  {
-    label: 'Database Timeout',
-    icon: '🗄️',
-    text: `CRITICAL ALERT: DBConnectionTimeout on production-cluster-01
-Fired: 2 mins ago
-Service: user-profile-service
-Region: us-east-1
-
-STACK TRACE:
-Internal Server Error: Failed to acquire connection from pool 'default' after 30000ms.
-  at com.zaxxer.hikari.pool.PoolBase.getConnection(PoolBase.java:162)
-  at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:145)
-
-RECENT CHANGES:
-- Deployment 'v1.4.2-hotfix-3' pushed to user-profile-service (10 mins ago)
-- Migration '20260315_add_index_to_profiles' started (15 mins ago)`
-  },
-  {
-    label: 'API 500 Spike',
-    icon: '🌐',
-    text: `High 5xx Error Rate on Load Balancer 'prod-ext-lb'
-Current: 25.5 req/s
-Target: < 0.5 req/s
-
-UPSTREAM LOGS (gateway-api):
-[ERROR] 502 Bad Gateway - POST /v1/auth/login
-[ERROR] 502 Bad Gateway - GET /v1/user/settings
-[WARN] upstream 'auth-service' unreachable, timing out after 5s
-
-K8S EVENTS:
-- auth-service-67fbd-92x1: CrashLoopBackOff (12 restarts in 5m)
-- auth-service-67fbd-92x1: Liveness probe failed: HTTP probe failed with statuscode: 500`
-  }
-];
+import { EXAMPLES } from '../data/examples';
 
 export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string, provider: Provider) => void }) => {
   const [text, setText] = useState('');
+  const [showAllScenarios, setShowAllScenarios] = useState(false);
   const provider: Provider = 'openrouter';
+
+  const displayedScenarios = showAllScenarios ? EXAMPLES : EXAMPLES.slice(0, 3);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="flex flex-wrap gap-4 justify-center">
-        {DEMO_SCENARIOS.map((scenario) => (
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-wrap gap-3 justify-center">
+          {displayedScenarios.map((scenario) => (
+            <button
+              key={scenario.label}
+              onClick={() => setText(scenario.text)}
+              className="flex items-center gap-2 m3-button-tonal text-[10px] font-bold py-2 px-4 hover:bg-secondary-container/80 transition-colors cursor-pointer rounded-full uppercase tracking-wider"
+            >
+              <span>{scenario.icon}</span>
+              {scenario.label}
+            </button>
+          ))}
           <button
-            key={scenario.label}
-            onClick={() => setText(scenario.text)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest neu-button hover:text-blue-500 transition-all"
+            onClick={() => setShowAllScenarios(!showAllScenarios)}
+            className="flex items-center gap-1 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest bg-surface-variant/30 text-on-surface-variant hover:bg-surface-variant/50 transition-all cursor-pointer"
           >
-            <span>{scenario.icon}</span>
-            {scenario.label}
+            {showAllScenarios ? (
+              <>
+                <ChevronUp className="w-3 h-3" /> Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3" /> {EXAMPLES.length - 3} More
+              </>
+            )}
           </button>
-        ))}
+        </div>
       </div>
 
-      <NeuCard className="relative group overflow-visible" variant="flat">
-        <div className="rounded-[24px] neu-pressed p-2">
+      <M3Card className="relative p-2" variant="elevated">
+        <div className="rounded-[12px] bg-surface-variant/30 p-1 border border-outline/20">
           <textarea
-            className="w-full bg-transparent border-none outline-none text-inherit placeholder:opacity-30 min-h-[220px] resize-none p-4 font-mono text-sm leading-relaxed"
+            className="w-full bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-variant/50 min-h-[220px] resize-none p-4 font-mono text-sm leading-relaxed"
             placeholder="Paste raw logs, alerts, or terminal output here..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
         </div>
         
-        <div className="absolute top-8 right-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button 
-            onClick={() => setText('')}
-            className="p-2 rounded-xl neu-button text-slate-400 hover:text-red-500 transition-colors"
-            title="Clear"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+        <div className="absolute top-6 right-6 flex gap-2">
+          {text && (
+            <button 
+              onClick={() => setText('')}
+              className="p-2 rounded-full hover:bg-error-container hover:text-on-error-container transition-colors text-on-surface-variant cursor-pointer"
+              title="Clear"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-4 gap-4">
-          <div className="flex items-center gap-6">
-            <p className="text-[10px] opacity-50 font-bold uppercase tracking-widest flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-blue-500" />
-              AI-Powered Analysis
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-2 gap-4">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <p className="text-sm text-on-surface-variant font-medium">
+              Ready for AI analysis
             </p>
           </div>
           
           <button 
             onClick={() => onAnalyze(text, provider)}
             disabled={!text.trim()}
-            className="w-full sm:w-auto px-10 py-3 rounded-2xl neu-button text-blue-600 disabled:opacity-30 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
+            className="w-full sm:w-auto m3-button-filled flex items-center justify-center gap-2 disabled:opacity-30 cursor-pointer"
           >
+            <Send className="w-4 h-4" />
             Analyze Incident
           </button>
         </div>
-      </NeuCard>
+      </M3Card>
     </div>
   );
 };
