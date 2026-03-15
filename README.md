@@ -33,9 +33,25 @@ Multi-agent incident analysis system that processes alerts, logs, and metrics to
     uv run python scripts/invoke.py scripts/scenarios/sev1_checkout_latency.json
     ```
 
-## Running with Docker (Podman)
+## Running with Podman (Docker)
 
-The project includes a multi-stage `Dockerfile` that bundles the React frontend and FastAPI backend into a single container.
+The project supports both single-container and multi-container architectures.
+
+### Multi-container (Recommended for Development)
+Uses `podman compose` (or `docker-compose`) to run the frontend and backend as separate services with Hot Module Replacement (HMR) and live code reloading.
+
+1.  **Configure environment**:
+    Ensure `.env` has `GEMINI_API_KEY` and optional `BRAINTRUST_*` settings.
+
+2.  **Start the services**:
+    ```bash
+    podman compose up --build
+    ```
+    - **Frontend**: `http://localhost:5173`
+    - **Backend**: `http://localhost:8000`
+
+### Single-container (Production-like)
+Bundles the React frontend and FastAPI backend into a single image.
 
 1.  **Build the image**:
     ```bash
@@ -46,7 +62,15 @@ The project includes a multi-stage `Dockerfile` that bundles the React frontend 
     ```bash
     podman run -p 8000:8000 --env-file .env on-call-agent
     ```
-    The application will be available at `http://localhost:8000`.
+    The bundled application will be available at `http://localhost:8000`.
+
+## Braintrust Integration
+
+The system uses Braintrust for observability and evaluation.
+
+- **Organization**: Configure `BRAINTRUST_ORG` (defaults to `Adiga`).
+- **Project**: Configure `BRAINTRUST_PROJECT` (defaults to `on-call-agent`).
+- **Tracing**: Wrap agent calls with `traced_agent_call` for automated spans.
 
 ## Development
 
