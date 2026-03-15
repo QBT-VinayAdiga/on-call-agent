@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NeuCard } from './NeuCard';
-import { Sparkles, Trash2, Cpu, Zap } from 'lucide-react';
+import { Sparkles, Trash2 } from 'lucide-react';
 import type { Provider } from '../hooks/useIncidentAnalysis';
 
 const DEMO_SCENARIOS = [
