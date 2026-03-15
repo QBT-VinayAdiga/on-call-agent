@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MagicBox } from './components/MagicBox';
-import { GlassCard } from './components/GlassCard';
+import { NeuCard } from './components/NeuCard';
+import { ThemeToggle } from './components/ThemeToggle';
 import { useIncidentAnalysis } from './hooks/useIncidentAnalysis';
 import { Activity, LayoutDashboard, MessageSquare, ClipboardList, AlertCircle } from 'lucide-react';
 
@@ -19,20 +20,17 @@ function App() {
 
   return (
     <div className="min-h-screen p-8 relative overflow-hidden transition-colors duration-300">
-      {/* Background Auroras */}
-      <div className="aurora top-[-10%] left-[-10%] bg-blue-600/30" />
-      <div className="aurora bottom-[-10%] right-[-10%] bg-purple-600/30" />
-      <div className="aurora top-[20%] right-[10%] bg-emerald-600/20" />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
       
       <div className="max-w-7xl mx-auto relative z-10">
-        <header className="mb-12 flex flex-col items-center">
-          <div className="flex items-center gap-3 mb-4">
-            <Activity className="w-10 h-10 text-blue-400 animate-pulse" />
-            <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-emerald-400 to-purple-400">
+        <header className="mb-16 flex flex-col items-center">
+          <div className="flex items-center gap-4 mb-4 p-4 rounded-full neu-flat">
+            <Activity className="w-10 h-10 text-accent animate-pulse" />
+            <h1 className="text-4xl font-extrabold tracking-tight opacity-90 uppercase">
               On-Call Copilot
             </h1>
           </div>
-          <p className="text-slate-400 text-lg">Active Incident Response Command Center</p>
+          <p className="opacity-50 text-sm font-bold uppercase tracking-[0.2em]">Active Incident Response Command Center</p>
         </header>
 
         <section className="mb-12">
