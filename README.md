@@ -1,11 +1,11 @@
-# On-Call Copilot (LangGraph + Gemini 2.0)
+# On-Call Copilot (LangGraph + OpenRouter)
 
-A multi-agent incident analysis system that processes alerts, logs, and metrics to provide technical triage, stakeholder communications, and post-incident reports. Built with LangGraph for orchestration and Google Gemini 2.0 Flash for high-speed, structured inference.
+A multi-agent incident analysis system that processes alerts, logs, and metrics to provide technical triage, stakeholder communications, and post-incident reports. Built with LangGraph for orchestration and OpenRouter (defaulting to OpenRouter 2.0 Flash) for high-speed, structured inference.
 
 ## Key Features
 
 - **Parallel Orchestration**: Uses LangGraph's `Send` API to execute four specialized agents (Triage, Summary, Comms, PIR) simultaneously.
-- **Structured Output**: Enforces strict JSON schemas using Gemini 2.0 native JSON mode.
+- **Structured Output**: Enforces strict JSON schemas using OpenRouter 2.0 native JSON mode.
 - **Observability**: Deep tracing and evaluation with Braintrust.
 - **Security**: Pre-LLM redaction pipeline to strip secrets from logs and alerts.
 - **Modern Tooling**: Managed with `uv` for Python and `pnpm` for Vite/React.
@@ -13,7 +13,7 @@ A multi-agent incident analysis system that processes alerts, logs, and metrics 
 ## Architecture
 
 - **Orchestration**: LangGraph StateGraph (Fan-out/Fan-in)
-- **LLM**: Google Gemini 2.0 Flash
+- **LLM**: OpenRouter 2.0 Flash
 - **API**: FastAPI (Backend)
 - **Frontend**: Vite + React + Tailwind CSS
 - **Observability**: Braintrust
@@ -37,7 +37,7 @@ A multi-agent incident analysis system that processes alerts, logs, and metrics 
     Copy `.env.template` to `.env` in the backend folder and add your API keys:
     ```bash
     cp backend/.env.template backend/.env
-    # Required: GEMINI_API_KEY, BRAINTRUST_API_KEY
+    # Required: OPENROUTER_API_KEY, BRAINTRUST_API_KEY
     ```
 
 3.  **Run the Backend**:

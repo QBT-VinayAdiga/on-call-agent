@@ -39,7 +39,7 @@ description: "Task list for On-Call Copilot implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Define input and agent output JSON schemas in app/schemas.py
-- [X] T005 [P] Implement Gemini client with schema enforcement and retries in app/gemini_client.py
+- [X] T005 [P] Implement OpenRouter client with schema enforcement and retries in app/llm_client.py
 - [X] T006 [P] Implement Braintrust initialization and tracing wrapper in app/braintrust_integration.py
 - [X] T007 [P] Implement regex-based secret redaction pipeline in app/telemetry.py
 - [X] T008 [P] Implement structured logging with correlation IDs in app/telemetry.py

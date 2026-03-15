@@ -17,7 +17,7 @@ def comms_node(state: AgentState) -> dict:
     start = time.monotonic()
 
     try:
-        provider = state.get("telemetry", {}).get("provider_override", "gemini")
+        provider = state.get("telemetry", {}).get("provider_override", "openrouter")
         response = generate_agent_response(
             instructions=COMMS_INSTRUCTIONS,
             incident_data=state["incident"],

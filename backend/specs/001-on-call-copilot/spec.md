@@ -3,7 +3,7 @@
 **Feature Branch**: `001-on-call-copilot`  
 **Created**: 2026-03-15  
 **Status**: Draft  
-**Input**: User description: "Implement On-Call Copilot multi-agent system using LangGraph, Gemini, and Braintrust"
+**Input**: User description: "Implement On-Call Copilot multi-agent system using LangGraph, OpenRouter, and Braintrust"
 
 ## User Scenarios & Testing *(mandatory)*
 

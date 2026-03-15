@@ -4,7 +4,7 @@
 **Input**: Feature specification from `specs/001-on-call-copilot/spec.md` and Technical Specification from `spec.md`.
 
 ## Summary
-Implement a multi-agent incident analysis system using LangGraph for parallel orchestration of four specialized Gemini-powered agents (Triage, Summary, Comms, PIR). The system features pre-LLM secret redaction, Braintrust for tracing and evals, and is served via FastAPI on GCP Cloud Run.
+Implement a multi-agent incident analysis system using LangGraph for parallel orchestration of four specialized OpenRouter-powered agents (Triage, Summary, Comms, PIR). The system features pre-LLM secret redaction, Braintrust for tracing and evals, and is served via FastAPI on GCP Cloud Run.
 
 ## Technical Context
 
@@ -23,7 +23,7 @@ Implement a multi-agent incident analysis system using LangGraph for parallel or
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - [x] **I. Parallel Execution**: Plan uses LangGraph `Send` API for true parallel agent dispatch.
-- [x] **II. Schema-Guaranteed JSON Output**: Plan uses Gemini `response_schema` and `response_mime_type="application/json"`.
+- [x] **II. Schema-Guaranteed JSON Output**: Plan uses OpenRouter `response_schema` and `response_mime_type="application/json"`.
 - [x] **III. Graceful Degradation & Isolation**: Plan captures per-agent errors in `AgentState` and returns partial results.
 - [x] **IV. Pre-LLM Secret Redaction**: Plan implements a regex-based redaction pipeline in the FastAPI entry point.
 - [x] **V. Continuous Improvement via Evals**: Plan includes Braintrust eval setup and golden-set testing.
@@ -54,7 +54,7 @@ app/
 ├── main.py              # FastAPI entry point & redaction
 ├── graph.py             # LangGraph StateGraph & fan-out/merge
 ├── schemas.py           # Input/Output JSON schemas
-├── gemini_client.py     # Vertex AI wrapper
+├── llm_client.py     # Vertex AI wrapper
 ├── braintrust_integration.py
 └── telemetry.py         # Logging & Redaction logic
 scripts/

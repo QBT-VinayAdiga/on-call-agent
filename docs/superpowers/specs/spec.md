@@ -1,4 +1,4 @@
-# On-Call Copilot — LangGraph + Gemini + Braintrust
+# On-Call Copilot — LangGraph + OpenRouter + Braintrust
 ### Technical Specification · v2.0
 
 ---
@@ -11,7 +11,7 @@
 4. [Input Schema](#input-schema)
 5. [Agent Definitions](#agent-definitions)
 6. [LangGraph Implementation](#langgraph-implementation)
-7. [Gemini Configuration](#gemini-configuration)
+7. [OpenRouter Configuration](#openrouter-configuration)
 8. [Braintrust Integration](#braintrust-integration)
 9. [Output Merge](#output-merge)
 10. [Error Handling & Resilience](#error-handling--resilience)
@@ -31,7 +31,7 @@
 
 ## Overview
 
-This document specifies the **LangGraph + Google Gemini + Braintrust** implementation of the On-Call Copilot multi-agent system. It replaces the original Microsoft Agent Framework + Azure OpenAI stack while preserving identical functional behavior.
+This document specifies the **LangGraph + OpenRouter + Braintrust** implementation of the On-Call Copilot multi-agent system. It replaces the original Microsoft Agent Framework + Azure OpenAI stack while preserving identical functional behavior.
 
 **Four specialized agents** run in parallel to process an incoming incident and return a unified structured JSON response covering triage, summary, communications, and post-incident reporting.
 
@@ -40,8 +40,8 @@ This document specifies the **LangGraph + Google Gemini + Braintrust** implement
 | Goal | Approach |
 |------|----------|
 | Parallel agent execution | LangGraph `Send` API |
-| Fast, cost-effective inference | Gemini 2.0 Flash |
-| Schema-guaranteed outputs | Gemini JSON mode + `response_schema` |
+| Fast, cost-effective inference | OpenRouter 2.0 Flash |
+| Schema-guaranteed outputs | OpenRouter JSON mode + `response_schema` |
 | Observability | Braintrust tracing + evals |
 | Secret safety | Pre-LLM redaction pipeline |
 | Continuous improvement | Braintrust golden-set evals + A/B prompt experiments |
@@ -109,7 +109,7 @@ Each agent is **stateless and isolated** — they receive the full incident payl
 ### Sequence Diagram
 
 ```
-Client          FastAPI          StateGraph       Gemini API        Braintrust
+Client          FastAPI          StateGraph       OpenRouter API        Braintrust
   │               │                  │                 │                │
   │─POST /invoke─▶│                  │                 │                │
   │               │─validate+redact─▶│                 │                │
@@ -131,7 +131,7 @@ Client          FastAPI          StateGraph       Gemini API        Braintrust
 | Component | Original | This Spec | Rationale |
 |-----------|----------|-----------|-----------|
 | Orchestration | Microsoft ConcurrentBuilder | LangGraph StateGraph | Open-source, composable, testable |
-| LLM | Azure OpenAI (Model Router) | Google Gemini 2.0 Flash | Speed, native JSON mode, cost |
+| LLM | Azure OpenAI (Model Router) | OpenRouter 2.0 Flash | Speed, native JSON mode, cost |
 | Evals & Tracing | OpenTelemetry + custom | Braintrust | Purpose-built for LLM eval workflows |
 | Serving | Microsoft Agent Framework | FastAPI + LangServe | Lightweight, async, portable |
 | Auth | DefaultAzureCredential | Google Application Default Credentials | GCP-native |
@@ -243,7 +243,7 @@ def validate_incident(payload: dict) -> None:
 
 All agents share these properties unless noted:
 
-- **Model:** `gemini-2.0-flash`
+- **Model:** `google/openrouter-2.0-flash-001`
 - **Output format:** JSON enforced via `response_mime_type="application/json"` and `response_schema`
 - **Failure mode:** Returns `{}` with an `_error` key — never raises to the graph
 
@@ -257,7 +257,7 @@ All agents share these properties unless noted:
 |----------|-------|
 | Name | `triage-agent` |
 | LangGraph node | `triage_node` |
-| Model | `gemini-2.0-flash` |
+| Model | `google/openrouter-2.0-flash-001` |
 | Timeout | 30s |
 | Max retries | 3 |
 
@@ -350,7 +350,7 @@ Rules:
 |----------|-------|
 | Name | `summary-agent` |
 | LangGraph node | `summary_node` |
-| Model | `gemini-2.0-flash` |
+| Model | `google/openrouter-2.0-flash-001` |
 | Timeout | 20s |
 | Max retries | 3 |
 
@@ -402,7 +402,7 @@ Rules:
 |----------|-------|
 | Name | `comms-agent` |
 | LangGraph node | `comms_node` |
-| Model | `gemini-2.0-flash` |
+| Model | `google/openrouter-2.0-flash-001` |
 | Timeout | 20s |
 | Max retries | 3 |
 
@@ -468,7 +468,7 @@ stakeholder_update rules:
 |----------|-------|
 | Name | `pir-agent` |
 | LangGraph node | `pir_node` |
-| Model | `gemini-2.0-flash` |
+| Model | `google/openrouter-2.0-flash-001` |
 | Timeout | 30s |
 | Max retries | 3 |
 
@@ -616,7 +616,7 @@ Each agent node follows this pattern — retries, error capture, and span loggin
 
 import time
 from app.graph import AgentState
-from app.gemini_client import generate_agent_response, GeminiCallError
+from app.llm_client import generate_agent_response, LLMCallError
 from app.schemas import TRIAGE_OUTPUT_SCHEMA, TRIAGE_INSTRUCTIONS
 import braintrust
 
@@ -638,7 +638,7 @@ def triage_node(state: AgentState) -> dict:
         span.end()
         return {"triage_output": response}
 
-    except GeminiCallError as e:
+    except LLMCallError as e:
         span.log(
             output={"_error": str(e)},
             metrics={"latency_ms": (time.monotonic() - start) * 1000}
@@ -652,19 +652,19 @@ def triage_node(state: AgentState) -> dict:
 
 ---
 
-## Gemini Configuration
+## OpenRouter Configuration
 
 ### Model Selection
 
 | Model | Use Case | Notes |
 |-------|----------|-------|
-| `gemini-2.0-flash` | All four agents (default) | Fast, cost-effective, JSON mode supported |
-| `gemini-2.5-flash` | Complex triage fallback | Upgrade path — not default |
+| `google/openrouter-2.0-flash-001` | All four agents (default) | Fast, cost-effective, JSON mode supported |
+| `openrouter-2.5-flash` | Complex triage fallback | Upgrade path — not default |
 
 ### Client Setup
 
 ```python
-# app/gemini_client.py
+# app/llm_client.py
 
 import os
 import json
@@ -676,11 +676,11 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 logger = logging.getLogger(__name__)
 
 client = genai.Client(
-    api_key=os.environ["GEMINI_API_KEY"],
+    api_key=os.environ["OPENROUTER_API_KEY"],
 )
 
-class GeminiCallError(Exception):
-    """Raised when Gemini fails after all retries."""
+class LLMCallError(Exception):
+    """Raised when OpenRouter fails after all retries."""
     pass
 ```
 
@@ -697,10 +697,10 @@ def generate_agent_response(
     instructions: str,
     incident_data: dict,
     output_schema: dict,
-    model: str = "gemini-2.0-flash",
+    model: str = "google/openrouter-2.0-flash-001",
 ) -> dict:
     """
-    Call Gemini with JSON schema enforcement.
+    Call OpenRouter with JSON schema enforcement.
     Retries up to 3 times with exponential backoff.
     """
     prompt = f"""## Incident Data
@@ -725,8 +725,8 @@ Follow your system instructions. Return ONLY valid JSON matching the schema."""
         return json.loads(response.text)
 
     except Exception as e:
-        logger.error("Gemini call failed: %s", str(e))
-        raise GeminiCallError(f"Gemini call failed: {e}") from e
+        logger.error("OpenRouter call failed: %s", str(e))
+        raise LLMCallError(f"OpenRouter call failed: {e}") from e
 ```
 
 ### Configuration Reference
@@ -766,7 +766,7 @@ braintrust.init(
 
 ### Tracing Pattern
 
-Each agent wraps its Gemini call in a Braintrust span. The `correlation_id` links all four agent spans back to the parent invocation:
+Each agent wraps its OpenRouter call in a Braintrust span. The `correlation_id` links all four agent spans back to the parent invocation:
 
 ```python
 import braintrust
@@ -880,8 +880,8 @@ def merge_node(state: AgentState) -> dict:
         "post_incident_report": pir.get("post_incident_report", {}),
         "telemetry": {
             "correlation_id": state["correlation_id"],
-            "model": "gemini-2.0-flash",
-            "provider": "google-gemini-api",
+            "model": "google/openrouter-2.0-flash-001",
+            "provider": "openrouter",
             "agent_errors": errors,
         }
     }
@@ -901,14 +901,14 @@ def merge_node(state: AgentState) -> dict:
 
 ### Retry Strategy
 
-All Gemini calls use `tenacity` with exponential backoff:
+All OpenRouter calls use `tenacity` with exponential backoff:
 
 | Attempt | Wait |
 |---------|------|
 | 1 | Immediate |
 | 2 | 2s |
 | 3 | 4s |
-| (fail) | Raise `GeminiCallError` |
+| (fail) | Raise `LLMCallError` |
 
 ### Timeout Configuration
 
@@ -925,7 +925,7 @@ AGENT_TIMEOUTS = {
 
 | Failure Type | Behavior |
 |--------------|----------|
-| Gemini API unavailable | Retry 3× → agent returns `{}` with `_error` |
+| OpenRouter API unavailable | Retry 3× → agent returns `{}` with `_error` |
 | JSON schema violation | Retry with stricter prompt → if still invalid, return `{}` with `_error` |
 | Timeout exceeded | Agent returns `{}` with `_error: "timeout"` |
 | Input validation failure | `422 Unprocessable Entity` before graph invocation |
@@ -933,14 +933,14 @@ AGENT_TIMEOUTS = {
 
 ### Circuit Breaker (Optional)
 
-For high-volume deployments, wrap `generate_agent_response` with a circuit breaker to fast-fail during Gemini API degradation:
+For high-volume deployments, wrap `generate_agent_response` with a circuit breaker to fast-fail during OpenRouter API degradation:
 
 ```python
 from pybreaker import CircuitBreaker
 
-gemini_breaker = CircuitBreaker(fail_max=5, reset_timeout=60)
+llm_breaker = CircuitBreaker(fail_max=5, reset_timeout=60)
 
-@gemini_breaker
+@llm_breaker
 def generate_agent_response(...):
     ...
 ```
@@ -1008,7 +1008,7 @@ def redact_secrets(payload: Any, depth: int = 0) -> Any:
 |--------|------|-------------|
 | `POST` | `/invoke` | Process incident through all 4 agents |
 | `GET` | `/health` | Liveness check |
-| `GET` | `/ready` | Readiness check (verifies Gemini reachability) |
+| `GET` | `/ready` | Readiness check (verifies OpenRouter reachability) |
 
 ### FastAPI Implementation
 
@@ -1026,7 +1026,7 @@ import braintrust
 import jsonschema
 
 logger = logging.getLogger(__name__)
-app = FastAPI(title="On-Call Copilot — LangGraph + Gemini", version="2.0.0")
+app = FastAPI(title="On-Call Copilot — LangGraph + OpenRouter", version="2.0.0")
 graph = create_incident_graph()
 
 @app.post("/invoke")
@@ -1081,7 +1081,7 @@ def health():
 @app.get("/ready")
 async def ready():
     try:
-        from app.gemini_client import client
+        from app.llm_client import client
         client.models.list()
         return {"status": "ready"}
     except Exception as e:
@@ -1135,8 +1135,8 @@ async def ready():
   },
   "telemetry": {
     "correlation_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "model": "gemini-2.0-flash",
-    "provider": "google-gemini-api",
+    "model": "google/openrouter-2.0-flash-001",
+    "provider": "openrouter",
     "agent_errors": {}
   }
 }
@@ -1174,7 +1174,7 @@ logger.info("agent_complete", agent="triage", latency_ms=423, correlation_id=cid
 | Agent failure rate | > 5% over 5 min |
 | P95 end-to-end latency | > 10s |
 | All-agents-failed rate | > 1% |
-| Gemini 429 rate | > 10/min |
+| OpenRouter 429 rate | > 10/min |
 
 ---
 
@@ -1187,10 +1187,10 @@ logger.info("agent_complete", agent="triage", latency_ms=423, correlation_id=cid
 | `GOOGLE_APPLICATION_CREDENTIALS` | ✅ | Path to service account JSON | `/secrets/gcp-creds.json` |
 | `BRAINTRUST_API_KEY` | ✅ | Braintrust API key | `btp_...` |
 | `LOG_LEVEL` | ❌ | Logging verbosity | `INFO` |
-| `MOCK_MODE` | ❌ | Skip Gemini calls; use fixture responses | `false` |
-| `GEMINI_MODEL` | ❌ | Override default model | `gemini-2.0-flash` |
+| `MOCK_MODE` | ❌ | Skip OpenRouter calls; use fixture responses | `false` |
+| `OPENROUTER_MODEL` | ❌ | Override default model | `google/openrouter-2.0-flash-001` |
 | `AGENT_TIMEOUT_SECONDS` | ❌ | Global agent timeout override | `30` |
-| `CIRCUIT_BREAKER_ENABLED` | ❌ | Enable Gemini circuit breaker | `false` |
+| `CIRCUIT_BREAKER_ENABLED` | ❌ | Enable OpenRouter circuit breaker | `false` |
 
 ---
 
@@ -1219,7 +1219,7 @@ uvicorn app.main:app --reload --port 8080
 
 ### Mock Mode
 
-`MOCK_MODE=true` skips all Gemini calls and returns fixture responses from `scripts/fixtures/`. Useful for schema validation and CI without GCP credentials:
+`MOCK_MODE=true` skips all OpenRouter calls and returns fixture responses from `scripts/fixtures/`. Useful for schema validation and CI without GCP credentials:
 
 ```bash
 MOCK_MODE=true uvicorn app.main:app --reload
@@ -1233,11 +1233,11 @@ MOCK_MODE=true uvicorn app.main:app --reload
 
 | Command | Description |
 |---------|-------------|
-| `python scripts/invoke.py --demo 1` | Single demo against live Gemini |
+| `python scripts/invoke.py --demo 1` | Single demo against live OpenRouter |
 | `python scripts/run_scenarios.py` | All 5 test scenarios |
 | `MOCK_MODE=true python scripts/validate.py` | Schema validation only (no LLM calls) |
 | `pytest tests/ -v` | Full unit test suite |
-| `INTEGRATION=true pytest tests/test_integration.py` | Live Gemini integration tests |
+| `INTEGRATION=true pytest tests/test_integration.py` | Live OpenRouter integration tests |
 | `braintrust eval tests/test_evals.py` | Evals against golden set |
 
 ### Unit Test Coverage
@@ -1354,7 +1354,7 @@ jobs:
 
 ## Cost Estimation
 
-Gemini 2.0 Flash pricing (verify at cloud.google.com/vertex-ai/pricing):
+OpenRouter 2.0 Flash pricing (verify at cloud.google.com/vertex-ai/pricing):
 
 | Component | Rate |
 |-----------|------|
@@ -1379,7 +1379,7 @@ At 10,000 incidents/month: ~$12/month in LLM costs. Cloud Run compute is additiv
 |-------------------|----------------|-------|
 | `ConcurrentBuilder` | `LangGraph StateGraph` + `Send` API | Fan-out semantics preserved |
 | `AzureOpenAIChatClient` | `google.genai.Client` (Vertex AI) | Auth via ADC |
-| Model Router | `GEMINI_MODEL` env var + default | No router needed |
+| Model Router | `OPENROUTER_MODEL` env var + default | No router needed |
 | OpenTelemetry spans | Braintrust spans | Richer LLM-specific eval data |
 | `agent.yaml` | `langserve.yaml` (optional) | LangServe serves the compiled graph |
 | Microsoft Foundry | GCP Cloud Run | Serverless, equivalent scaling |
@@ -1402,7 +1402,7 @@ oncall-copilot-langgraph/
 │   │   ├── comms.py                  # comms_node + COMMS_INSTRUCTIONS
 │   │   └── pir.py                    # pir_node + PIR_INSTRUCTIONS
 │   ├── schemas.py                    # Input + per-agent output JSON schemas
-│   ├── gemini_client.py              # Gemini wrapper: schema enforcement + retry
+│   ├── llm_client.py              # OpenRouter wrapper: schema enforcement + retry
 │   ├── braintrust_integration.py     # Braintrust init + traced_agent_call
 │   └── telemetry.py                  # redact_secrets, structlog, correlation IDs
 ├── scripts/
@@ -1440,14 +1440,14 @@ oncall-copilot-langgraph/
 | Principle | Implementation |
 |-----------|----------------|
 | **Parallel execution** | LangGraph `Send` API dispatches all 4 agents simultaneously |
-| **JSON-only output** | Gemini `response_mime_type="application/json"` + `response_schema` |
+| **JSON-only output** | OpenRouter `response_mime_type="application/json"` + `response_schema` |
 | **Deterministic output** | `temperature=0.0` on all agent calls |
 | **Graceful degradation** | Per-agent error capture; partial results returned rather than hard failure |
-| **No hardcoded models** | `GEMINI_MODEL` env var; `gemini-2.0-flash` default with clear upgrade path |
+| **No hardcoded models** | `OPENROUTER_MODEL` env var; `google/openrouter-2.0-flash-001` default with clear upgrade path |
 | **Separation of concerns** | Each agent owns distinct output keys; no cross-agent state dependency |
 | **Instructions as config** | Agent behavior defined in `*_INSTRUCTIONS` strings, versioned in Git |
 | **No hallucination** | `confidence: 0.0` + `missing_information` when data is insufficient |
 | **Secret safety** | Redaction runs before graph invocation — LLM never sees raw secrets |
 | **Observability** | Braintrust spans + structlog JSON logs + `correlation_id` threaded throughout |
 | **Testability** | `MOCK_MODE` enables full test runs without GCP credentials |
-| **Cost awareness** | Token budgets via `max_output_tokens`; cost per call is ~$0.001 |
+| **Cost awareness** | Token budgets via `max_output_tokens`; cost per call is ~$0.001 |s ~$0.001 |

@@ -22,7 +22,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="On-Call Copilot — LangGraph + Gemini", version="2.0.0")
+app = FastAPI(title="On-Call Copilot — LangGraph + OpenRouter", version="2.0.0")
 
 # Router for API endpoints called by the frontend (matches the /api prefix in UI code)
 api_router = APIRouter(prefix="/api")
@@ -42,10 +42,10 @@ async def invoke_incident(request: Request) -> JSONResponse:
         # Handle both direct incident object or {incident: {}, provider: ""}
         if "incident" in payload:
             incident = payload["incident"]
-            provider = payload.get("provider", "gemini")
+            provider = payload.get("provider", "openrouter")
         else:
             incident = payload
-            provider = "gemini"
+            provider = "openrouter"
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 

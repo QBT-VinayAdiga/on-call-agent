@@ -7,7 +7,7 @@
 - **Rationale**: LangGraph's `Send` API allows for true parallel dispatch of agents without inter-agent state dependencies. This fulfills the Constitution's parallel execution mandate.
 - **Alternatives considered**: Microsoft ConcurrentBuilder (rejected: less composable, more complex boilerplate).
 
-### Decision: Google Gemini 2.0 Flash
+### Decision: OpenRouter 2.0 Flash
 - **Status**: Finalized
 - **Rationale**: High speed and low cost ($0.0012/call) make it ideal for real-time incident triage. Built-in JSON schema enforcement at inference time ensures reliability.
 - **Alternatives considered**: Azure OpenAI (rejected: higher cost, no native JSON schema mode).

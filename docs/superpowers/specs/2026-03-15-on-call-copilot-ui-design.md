@@ -15,7 +15,7 @@ A high-density, real-time dashboard for on-call engineers to triage incidents us
 1.  **Input**: User pastes raw, unstructured text (mixed logs, JSON alerts, terminal output) into a large centered "Magic Box" text area.
 2.  **AI-Assisted Structuring**: On submission, the UI shows a "Scanning & Structuring" animation. 
     - *Client Side*: Prepares the request.
-    - *Backend (New)*: A pre-processing step uses Gemini to map the raw text to the `INCIDENT_INPUT_SCHEMA`.
+    - *Backend (New)*: A pre-processing step uses OpenRouter to map the raw text to the `INCIDENT_INPUT_SCHEMA`.
 3.  **Analysis**: The structured JSON is automatically invoked via the LangGraph `/invoke` endpoint.
 4.  **Results**: A 2x2 grid of "Agent Cards" populates with the analysis results.
 

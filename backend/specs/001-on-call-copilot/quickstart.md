@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Python 3.11+
-- Gemini API Key
+- OpenRouter API Key
 - Braintrust API Key
 
 ## Setup
@@ -15,7 +15,7 @@
    Copy `.env.template` to `.env` and add your API keys:
    ```bash
    cp .env.template .env
-   # Edit .env with GEMINI_API_KEY, BRAINTRUST_API_KEY
+   # Edit .env with OPENROUTER_API_KEY, BRAINTRUST_API_KEY
    ```
 
 3. **Run in Mock Mode** (No live LLM calls, if implemented):
