@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { GlassCard } from './GlassCard';
-import { Sparkles, Trash2 } from 'lucide-react';
+import { NeuCard } from './NeuCard';
+import { Sparkles, Trash2, Cpu, Zap } from 'lucide-react';
+import type { Provider } from '../hooks/useIncidentAnalysis';
 
 const DEMO_SCENARIOS = [
   {
@@ -54,17 +55,18 @@ K8S EVENTS:
   }
 ];
 
-export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string) => void }) => {
+export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string, provider: Provider) => void }) => {
   const [text, setText] = useState('');
+  const [provider, setProvider] = useState<Provider>('gemini');
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
-      <div className="flex flex-wrap gap-3 justify-center">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <div className="flex flex-wrap gap-4 justify-center">
         {DEMO_SCENARIOS.map((scenario) => (
           <button
             key={scenario.label}
             onClick={() => setText(scenario.text)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900/50 hover:bg-slate-800 border border-white/10 rounded-full text-xs font-medium text-slate-300 transition-all hover:border-blue-500/50 hover:text-blue-400"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest neu-button hover:text-blue-500 transition-all"
           >
             <span>{scenario.icon}</span>
             {scenario.label}
@@ -72,38 +74,68 @@ export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string) => void }) =
         ))}
       </div>
 
-      <GlassCard className="relative group">
-        <textarea
-          className="w-full bg-transparent border-none outline-none text-white placeholder-white/20 min-h-[200px] resize-none p-6 font-mono text-sm leading-relaxed"
-          placeholder="Paste raw logs, alerts, or terminal output here..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+      <NeuCard className="relative group overflow-visible" variant="flat">
+        <div className="rounded-[24px] neu-pressed p-2">
+          <textarea
+            className="w-full bg-transparent border-none outline-none text-inherit placeholder:opacity-30 min-h-[220px] resize-none p-4 font-mono text-sm leading-relaxed"
+            placeholder="Paste raw logs, alerts, or terminal output here..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </div>
         
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-8 right-8 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button 
             onClick={() => setText('')}
-            className="p-2 bg-slate-900/80 hover:bg-red-500/20 border border-white/10 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
+            className="p-2 rounded-xl neu-button text-slate-400 hover:text-red-500 transition-colors"
             title="Clear"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex justify-between items-center mt-2 p-4 border-t border-white/5 bg-white/5">
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest ml-2 flex items-center gap-2">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            AI-Powered Analysis
-          </p>
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 p-4 gap-4">
+          <div className="flex items-center gap-6">
+            <p className="text-[10px] opacity-50 font-bold uppercase tracking-widest flex items-center gap-2">
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              AI-Powered Analysis
+            </p>
+            
+            <div className="flex p-1 rounded-2xl neu-pressed">
+              <button
+                onClick={() => setProvider('gemini')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  provider === 'gemini' 
+                    ? 'neu-button text-blue-500' 
+                    : 'opacity-40 hover:opacity-100'
+                }`}
+              >
+                <Cpu className="w-3 h-3" />
+                Gemini
+              </button>
+              <button
+                onClick={() => setProvider('openrouter')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  provider === 'openrouter' 
+                    ? 'neu-button text-purple-500' 
+                    : 'opacity-40 hover:opacity-100'
+                }`}
+              >
+                <Zap className="w-3 h-3" />
+                OpenRouter
+              </button>
+            </div>
+          </div>
+          
           <button 
-            onClick={() => onAnalyze(text)}
+            onClick={() => onAnalyze(text, provider)}
             disabled={!text.trim()}
-            className="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:hover:bg-blue-600 text-white rounded-xl transition-all cursor-pointer font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-95"
+            className="w-full sm:w-auto px-10 py-3 rounded-2xl neu-button text-blue-600 disabled:opacity-30 font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
           >
             Analyze Incident
           </button>
         </div>
-      </GlassCard>
+      </NeuCard>
     </div>
   );
 };

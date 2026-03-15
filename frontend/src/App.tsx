@@ -53,77 +53,78 @@ function App() {
 
         {result && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            {/* Triage Agent Card */}
-            <GlassCard title="Triage & Remediation" className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-emerald-400 mb-2">
+            <NeuCard title="Triage & Remediation" className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-emerald-500 mb-2">
                 <AlertCircle className="w-5 h-5" />
-                <span className="font-bold">Immediate Actions</span>
+                <span className="font-bold uppercase tracking-widest text-xs">Immediate Actions</span>
               </div>
               <div className="space-y-3">
                 {result.immediate_actions?.map((action: any, i: number) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-                    <input type="checkbox" className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500" />
+                  <div key={i} className="flex items-start gap-3 p-4 rounded-2xl neu-pressed">
+                    <input type="checkbox" className="mt-1 w-4 h-4 rounded-full border-slate-300 bg-slate-100 text-emerald-500 focus:ring-emerald-500" />
                     <div>
                       <p className="text-sm font-medium">{action.step}</p>
-                      <span className="text-[10px] uppercase tracking-wider text-emerald-500/60 font-bold">{action.owner_role} • {action.priority}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-bold">{action.owner_role} • {action.priority}</span>
                     </div>
                   </div>
                 ))}
               </div>
-            </GlassCard>
+            </NeuCard>
 
             {/* Summary Agent Card */}
-            <GlassCard title="Incident Summary" className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-blue-400 mb-2">
+            <NeuCard title="Incident Summary" className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-blue-500 mb-2">
                 <LayoutDashboard className="w-5 h-5" />
-                <span className="font-bold">Narrative</span>
+                <span className="font-bold uppercase tracking-widest text-xs">Narrative</span>
               </div>
-              <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 italic text-slate-300 leading-relaxed">
+              <div className="p-5 rounded-2xl neu-pressed italic opacity-90 leading-relaxed text-sm">
                 "{result.summary?.what_happened}"
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-white/5">
-                <span className="text-sm text-slate-400">Current Status</span>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${
-                  result.summary?.current_status?.includes('ONGOING') ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
+              <div className="flex items-center justify-between p-4 rounded-2xl neu-pressed">
+                <span className="text-xs font-bold uppercase tracking-widest opacity-60">Current Status</span>
+                <span className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${
+                  result.summary?.current_status?.includes('ONGOING') ? 'text-red-500' : 'text-emerald-500'
                 }`}>
                   {result.summary?.current_status}
                 </span>
               </div>
-            </GlassCard>
+            </NeuCard>
 
             {/* Comms Agent Card */}
-            <GlassCard title="Communications" className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-purple-400 mb-2">
+            <NeuCard title="Communications" className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-purple-500 mb-2">
                 <MessageSquare className="w-5 h-5" />
-                <span className="font-bold">Stakeholder Updates</span>
+                <span className="font-bold uppercase tracking-widest text-xs">Stakeholder Updates</span>
               </div>
               <div className="space-y-4">
                 <div className="group relative">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-2 mb-1 block">Slack Update</label>
-                  <pre className="p-4 rounded-xl bg-slate-900/80 border border-white/5 text-xs text-slate-400 whitespace-pre-wrap font-mono">
+                  <label className="text-[10px] font-bold opacity-50 uppercase tracking-widest ml-2 mb-1 block">Slack Update</label>
+                  <pre className="p-5 rounded-2xl neu-pressed text-xs opacity-80 whitespace-pre-wrap font-mono">
                     {result.comms?.slack_update}
                   </pre>
-                  <button className="absolute top-8 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-purple-500/20 hover:bg-purple-500/40 p-2 rounded-lg text-purple-400 text-[10px] font-bold">COPY</button>
+                  <button className="absolute top-8 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg text-purple-500 text-[10px] font-bold neu-button">COPY</button>
                 </div>
               </div>
-            </GlassCard>
+            </NeuCard>
 
             {/* PIR Agent Card */}
-            <GlassCard title="Post-Incident Report" className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-slate-400 mb-2">
+            <NeuCard title="Post-Incident Report" className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 text-slate-500 mb-2">
                 <ClipboardList className="w-5 h-5" />
-                <span className="font-bold">Draft Timeline</span>
+                <span className="font-bold uppercase tracking-widest text-xs">Draft Timeline</span>
               </div>
-              <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-800">
+              <div className="relative pl-8 space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[4px] before:bg-slate-300/50 before:rounded-full">
                 {result.post_incident_report?.timeline?.map((event: any, i: number) => (
                   <div key={i} className="relative">
-                    <div className="absolute left-[-22px] top-1 w-3 h-3 rounded-full bg-slate-700 border-2 border-slate-950" />
-                    <span className="text-[10px] font-mono text-slate-500">{event.time}</span>
-                    <p className="text-xs text-slate-300">{event.event}</p>
+                    <div className="absolute left-[-26px] top-1.5 w-4 h-4 rounded-full neu-flat flex items-center justify-center">
+                       <div className="w-2 h-2 rounded-full bg-slate-400" />
+                    </div>
+                    <span className="text-[10px] font-mono opacity-50 block mb-1">{event.time}</span>
+                    <p className="text-xs font-medium">{event.event}</p>
                   </div>
                 ))}
               </div>
-            </GlassCard>
+            </NeuCard>
           </div>
         )}
       </div>
