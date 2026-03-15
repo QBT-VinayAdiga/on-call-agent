@@ -57,7 +57,7 @@ K8S EVENTS:
 
 export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string, provider: Provider) => void }) => {
   const [text, setText] = useState('');
-  const [provider, setProvider] = useState<Provider>('gemini');
+  const provider: Provider = 'openrouter';
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -100,31 +100,6 @@ export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string, provider: Pr
               <Sparkles className="w-3 h-3 text-blue-500" />
               AI-Powered Analysis
             </p>
-            
-            <div className="flex p-1 rounded-2xl neu-pressed">
-              <button
-                onClick={() => setProvider('gemini')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  provider === 'gemini' 
-                    ? 'neu-button text-blue-500' 
-                    : 'opacity-40 hover:opacity-100'
-                }`}
-              >
-                <Cpu className="w-3 h-3" />
-                Gemini
-              </button>
-              <button
-                onClick={() => setProvider('openrouter')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  provider === 'openrouter' 
-                    ? 'neu-button text-purple-500' 
-                    : 'opacity-40 hover:opacity-100'
-                }`}
-              >
-                <Zap className="w-3 h-3" />
-                OpenRouter
-              </button>
-            </div>
           </div>
           
           <button 
