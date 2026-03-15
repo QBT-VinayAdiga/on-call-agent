@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { MagicBox } from './components/MagicBox';
 import { GlassCard } from './components/GlassCard';
 import { useIncidentAnalysis } from './hooks/useIncidentAnalysis';
@@ -5,9 +6,19 @@ import { Activity, LayoutDashboard, MessageSquare, ClipboardList, AlertCircle } 
 
 function App() {
   const { analyze, result, loading, error } = useIncidentAnalysis();
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'dark'
+  );
+
+  useEffect(() => {
+    document.documentElement.className = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
+    <div className="min-h-screen p-8 relative overflow-hidden transition-colors duration-300">
       {/* Background Auroras */}
       <div className="aurora top-[-10%] left-[-10%] bg-blue-600/30" />
       <div className="aurora bottom-[-10%] right-[-10%] bg-purple-600/30" />
