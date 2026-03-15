@@ -1,80 +1,101 @@
-# On-Call Copilot (LangGraph + Gemini)
+# On-Call Copilot (LangGraph + Gemini 2.0)
 
-Multi-agent incident analysis system that processes alerts, logs, and metrics to provide technical triage, stakeholder communications, and post-incident reports.
+A multi-agent incident analysis system that processes alerts, logs, and metrics to provide technical triage, stakeholder communications, and post-incident reports. Built with LangGraph for orchestration and Google Gemini 2.0 Flash for high-speed, structured inference.
+
+## Key Features
+
+- **Parallel Orchestration**: Uses LangGraph's `Send` API to execute four specialized agents (Triage, Summary, Comms, PIR) simultaneously.
+- **Structured Output**: Enforces strict JSON schemas using Gemini 2.0 native JSON mode.
+- **Observability**: Deep tracing and evaluation with Braintrust.
+- **Security**: Pre-LLM redaction pipeline to strip secrets from logs and alerts.
+- **Modern Tooling**: Managed with `uv` for Python and `pnpm` for Vite/React.
 
 ## Architecture
 
-- **Orchestration**: LangGraph StateGraph (Parallel fan-out)
+- **Orchestration**: LangGraph StateGraph (Fan-out/Fan-in)
 - **LLM**: Google Gemini 2.0 Flash
-- **API**: FastAPI
+- **API**: FastAPI (Backend)
+- **Frontend**: Vite + React + Tailwind CSS
 - **Observability**: Braintrust
 
 ## Getting Started
 
+### Prerequisites
+- [uv](https://github.com/astral-sh/uv) (Python package manager)
+- [pnpm](https://pnpm.io/) (Node package manager)
+- [Podman](https://podman.io/) or Docker
+
+### Local Setup
+
 1.  **Install dependencies**:
     ```bash
-    uv sync
+    cd backend && uv sync
+    cd ../frontend && pnpm install && cd ..
     ```
 
 2.  **Configure environment**:
-    Copy `.env.template` to `.env` and add your API keys:
+    Copy `.env.template` to `.env` in the backend folder and add your API keys:
     ```bash
-    cp .env.template .env
-    # Edit .env with GEMINI_API_KEY, BRAINTRUST_API_KEY
+    cp backend/.env.template backend/.env
+    # Required: GEMINI_API_KEY, BRAINTRUST_API_KEY
     ```
 
-3.  **Run the service**:
+3.  **Run the Backend**:
     ```bash
-    uv run uvicorn app.main:app --reload
+    cd backend && uv run uvicorn app.main:app --reload
     ```
 
-4.  **Test an incident**:
+4.  **Run the Frontend**:
     ```bash
-    uv run python scripts/invoke.py scripts/scenarios/sev1_checkout_latency.json
+    cd frontend && pnpm dev
     ```
 
-## Running with Podman (Docker)
+## Running with Podman (Compose)
 
-The project supports both single-container and multi-container architectures.
+The project uses a multi-container architecture for development with Hot Module Replacement (HMR).
 
-### Multi-container (Recommended for Development)
-Uses `podman compose` (or `docker-compose`) to run the frontend and backend as separate services with Hot Module Replacement (HMR) and live code reloading.
-
-1.  **Configure environment**:
-    Ensure `.env` has `GEMINI_API_KEY` and optional `BRAINTRUST_*` settings.
-
-2.  **Start the services**:
+1.  **Start the services**:
     ```bash
     podman compose up --build
     ```
-    - **Frontend**: `http://localhost:5173`
-    - **Backend**: `http://localhost:8000`
+    - **Frontend**: `http://localhost:5173` (with live reload)
+    - **Backend**: `http://localhost:8000` (with auto-restart)
+    - **API Docs**: `http://localhost:8000/docs`
 
-### Single-container (Production-like)
-Bundles the React frontend and FastAPI backend into a single image.
+## Testing & Evaluation
 
-1.  **Build the image**:
-    ```bash
-    podman build -t on-call-agent .
-    ```
+### Scenario Invocation
+Test the system against pre-defined incident scenarios:
+```bash
+cd backend && uv run python scripts/invoke.py scripts/scenarios/sev1_checkout_latency.json
+```
 
-2.  **Run the container**:
-    ```bash
-    podman run -p 8000:8000 --env-file .env on-call-agent
-    ```
-    The bundled application will be available at `http://localhost:8000`.
+### Automated Tests
+Run the unit and integration test suite:
+```bash
+cd backend && uv run python -m pytest
+```
 
+### Braintrust Evals
+Run evaluations against the "golden set" of incident data:
+```bash
+cd backend && uv run braintrust eval tests/test_evals.py
+```
+
+## Project Structure
+
+- `backend/`: FastAPI backend monorepo source.
+  - `app/`: Application source (agents, graph, schemas).
+  - `scripts/`: Scenario invokers and evaluation datasets.
+  - `tests/`: Unit, integration, and evaluation tests.
+  - `Dockerfile`: Container definition for backend.
+- `frontend/`: Vite + React + Tailwind CSS source.
+- `docs/`: Project-wide documentation and specifications.
+- `docker-compose.yml`: Orchestration for local development.
 ## Braintrust Integration
 
 The system uses Braintrust for observability and evaluation.
 
-- **Organization**: Configure `BRAINTRUST_ORG` (defaults to `Adiga`).
-- **Project**: Configure `BRAINTRUST_PROJECT` (defaults to `on-call-agent`).
-- **Tracing**: Wrap agent calls with `traced_agent_call` for automated spans.
-
-## Development
-
-- `app/graph.py`: The LangGraph definition.
-- `app/agents/`: Individual agent nodes (Triage, Summary, Comms, PIR).
-- `app/schemas.py`: Input/Output JSON schemas and system instructions.
-- `tests/`: Automated test suite.
+- **Organization**: `Adiga`
+- **Project**: `on-call-agent`
+- **Tracing**: All agent calls are wrapped with `traced_agent_call` for automated spans in the Braintrust UI.

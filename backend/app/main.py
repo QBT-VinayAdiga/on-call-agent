@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+
+# Import Braintrust integration to initialize it
+import app.braintrust_integration
 from app.graph import create_incident_graph
 from app.schemas import INCIDENT_INPUT_SCHEMA
 from app.telemetry import redact_secrets, get_correlation_id

@@ -1,6 +1,10 @@
 FROM python:3.11-slim
 WORKDIR /app
 
+# Disable uv progress bars and enable unbuffered output for cleaner logs
+ENV UV_NO_PROGRESS=1
+ENV PYTHONUNBUFFERED=1
+
 # Install uv and curl
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -9,7 +13,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 
 # Install dependencies
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --no-progress
 
 # Copy application code
 COPY app/ ./app/

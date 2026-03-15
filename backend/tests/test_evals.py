@@ -50,7 +50,7 @@ def run_triage_eval():
         return
 
     Eval(
-        project="oncall-copilot",
+        project="on-call-agent",
         experiment="triage-baseline",
         data=load_golden_set(),
         task=lambda example: triage_node({"incident": example["input"], "correlation_id": "eval", "agent_errors": {}}),

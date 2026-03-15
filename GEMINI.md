@@ -10,19 +10,19 @@ Auto-generated from all feature plans. Last updated: 2026-03-15
 ## Project Structure
 
 ```text
-app//         # FastAPI backend source
-frontend//    # Vite + React source
-tests//       # Automated tests
-scripts//     # Scenario invokers
+backend/app/  # FastAPI backend source
+backend/tests/# Automated tests
+backend/scripts/# Scenario invokers
+frontend/     # Vite + React source
 ```
 
 ## Commands
 
-- **Backend**: `uv run uvicorn app.main:app --reload`
+- **Backend**: `cd backend && uv run uvicorn app.main:app --reload`
 - **Frontend**: `cd frontend && pnpm dev`
 - **Compose**: `podman compose up --build`
-- **Tests**: `uv run python -m pytest`
-- **Invoker**: `uv run python scripts/invoke.py scripts/scenarios/sev1_checkout_latency.json`
+- **Tests**: `cd backend && uv run python -m pytest`
+- **Invoker**: `cd backend && uv run python scripts/invoke.py scripts/scenarios/sev1_checkout_latency.json`
 
 ## Recent Changes
 
