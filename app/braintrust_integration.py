@@ -11,7 +11,8 @@ load_dotenv()
 # Initialize Braintrust
 if os.environ.get("BRAINTRUST_API_KEY"):
     braintrust.init(
-        project="oncall-copilot",
+        project=os.environ.get("BRAINTRUST_PROJECT", "on-call-agent"),
+        org_name=os.environ.get("BRAINTRUST_ORG", "Adiga"),
         api_key=os.environ["BRAINTRUST_API_KEY"],
     )
 
