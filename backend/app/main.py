@@ -1,5 +1,6 @@
 # app/main.py
 
+import braintrust
 import uuid
 import logging
 import jsonschema
@@ -67,35 +68,53 @@ async def invoke_incident(request: Request) -> JSONResponse:
         "provider": provider
     })
 
-    # 4. Invoke the LangGraph StateGraph
-    initial_state = {
-        "incident": incident,
-        "triage_output": None,
-        "summary_output": None,
-        "comms_output": None,
-        "pir_output": None,
-        "correlation_id": correlation_id,
-        "agent_errors": {},
-        "telemetry": {"provider_override": provider},
-    }
+    # 4. Invoke the LangGraph StateGraph inside a root Braintrust span
+    with braintrust.start_span(
+        name="incident-analysis",
+        input=incident,
+        metadata={
+            "correlation_id": correlation_id,
+            "provider": provider,
+            "severity": incident.get("severity")
+        }
+    ) as span:
+        initial_state = {
+            "incident": incident,
+            "triage_output": None,
+            "summary_output": None,
+            "comms_output": None,
+            "pir_output": None,
+            "correlation_id": correlation_id,
+            "agent_errors": {},
+            "telemetry": {"provider_override": provider},
+        }
 
-    try:
-        graph = get_graph()
-        result = await graph.ainvoke(initial_state)
-    except Exception as e:
-        logger.error("graph_invocation_failed", extra={"error": str(e), "correlation_id": correlation_id})
-        raise HTTPException(status_code=500, detail="Internal processing error")
+        try:
+            graph = get_graph()
+            result = await graph.ainvoke(initial_state)
+            
+            # Log final telemetry to root span
+            agent_errors = result.get("telemetry", {}).get("agent_errors", {})
+            span.log(
+                output=result,
+                metadata={"agent_errors_count": len(agent_errors)}
+            )
+            
+        except Exception as e:
+            logger.error("graph_invocation_failed", extra={"error": str(e), "correlation_id": correlation_id})
+            span.log(output={"error": str(e)}, status="error")
+            raise HTTPException(status_code=500, detail="Internal processing error")
 
-    # 5. Handle partial or total failure
-    agent_errors = result.get("telemetry", {}).get("agent_errors", {})
-    if len(agent_errors) >= 4:
-        logger.error("all_agents_failed", extra={"correlation_id": correlation_id, "errors": agent_errors})
-        raise HTTPException(status_code=500, detail={
-            "message": "All analysis agents failed",
-            "errors": agent_errors
-        })
+        # 5. Handle partial or total failure
+        if len(agent_errors) >= 4:
+            logger.error("all_agents_failed", extra={"correlation_id": correlation_id, "errors": agent_errors})
+            span.log(status="error", metadata={"all_failed": True})
+            raise HTTPException(status_code=500, detail={
+                "message": "All analysis agents failed",
+                "errors": agent_errors
+            })
 
-    return JSONResponse(content=result, status_code=200)
+        return JSONResponse(content=result, status_code=200)
 
 @api_router.post("/structure")
 async def structure_incident(request: Request) -> JSONResponse:
@@ -114,9 +133,16 @@ async def structure_incident(request: Request) -> JSONResponse:
         if not raw_text:
             raise HTTPException(status_code=400, detail="No text provided")
         
-        from app.llm_client import structure_incident_data
-        structured_data = structure_incident_data(raw_text, provider=provider)
-        return JSONResponse(content=structured_data, status_code=200)
+        with braintrust.start_span(
+            name="incident-structuring",
+            input={"text_length": len(raw_text)},
+            metadata={"correlation_id": correlation_id, "provider": provider}
+        ) as span:
+            from app.llm_client import structure_incident_data
+            structured_data = structure_incident_data(raw_text, provider=provider)
+            span.log(output=structured_data)
+            return JSONResponse(content=structured_data, status_code=200)
+
     except HTTPException:
         raise
     except Exception as e:
