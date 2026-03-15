@@ -30,24 +30,24 @@ function App() {
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
       
       <div className="max-w-6xl mx-auto relative z-10">
-        <header className="mb-12 flex flex-col items-center">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="p-4 rounded-3xl bg-primary-container text-on-primary-container shadow-elevation-1">
+        <header className="mb-16 flex flex-col items-center">
+          <div className="flex items-center gap-6 mb-4">
+            <div className="p-5 rounded-3xl bg-primary-container text-on-primary-container shadow-elevation-1">
               <Activity className="w-10 h-10 animate-pulse" />
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-on-surface">
               On-Call Copilot
             </h1>
           </div>
-          <p className="text-on-surface-variant font-medium text-sm tracking-wide bg-secondary-container/30 px-4 py-1 rounded-full border border-outline/10">
+          <p className="text-on-surface-variant font-medium text-sm tracking-wide bg-secondary-container/30 px-6 py-2 rounded-full border border-outline/10">
             Active Incident Command Center
           </p>
         </header>
 
-        <section className="mb-12">
+        <section className="mb-16">
           <MagicBox onAnalyze={analyze} />
           {error && (
-            <div className="mt-6 p-4 bg-error-container text-on-error-container rounded-2xl border border-error/20 flex items-center gap-3 max-w-2xl mx-auto shadow-elevation-1">
+            <div className="mt-8 p-6 bg-error-container text-on-error-container rounded-2xl border border-error/20 flex items-center gap-4 max-w-2xl mx-auto shadow-elevation-1">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>
@@ -55,33 +55,33 @@ function App() {
         </section>
 
         {loading && (
-          <div className="mt-16 flex flex-col items-center gap-6 py-20 animate-in fade-in duration-500">
+          <div className="mt-20 flex flex-col items-center gap-8 py-24 animate-in fade-in duration-500">
             <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
             <p className="text-primary font-medium text-lg tracking-wide">Synthesizing Incident Context...</p>
           </div>
         )}
 
         {result && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 animate-in fade-in slide-in-from-bottom-6 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 animate-in fade-in slide-in-from-bottom-6 duration-500">
             {/* Triage Agent Card */}
             <M3Card title="Immediate Actions" className="bg-surface-variant/20 border border-outline/10">
-              <div className="flex items-center gap-2 text-primary mb-4">
+              <div className="flex items-center gap-2 text-primary mb-6">
                 <AlertCircle className="w-5 h-5" />
                 <span className="text-xs font-bold uppercase tracking-widest opacity-80">Remediation Steps</span>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {result.immediate_actions?.map((action: any, i: number) => (
-                  <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-surface shadow-elevation-1 border border-outline/5 hover:border-outline/20 transition-colors">
+                  <div key={i} className="flex items-start gap-4 p-5 rounded-2xl bg-surface shadow-elevation-1 border border-outline/5 hover:border-outline/20 transition-colors">
                     <div className="mt-1 flex-shrink-0">
                       <input type="checkbox" className="w-5 h-5 rounded-md border-outline bg-surface-variant text-primary focus:ring-primary cursor-pointer" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium leading-relaxed">{action.step}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-md uppercase">
+                      <div className="flex flex-wrap items-center gap-4 mt-4">
+                        <span className="px-3 py-1 bg-secondary-container text-on-secondary-container text-[11px] font-bold rounded-md uppercase">
                           {action.owner_role}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                        <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase ${
                           action.priority === 'HIGH' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-container text-on-tertiary-container'
                         }`}>
                           {action.priority}
@@ -95,42 +95,49 @@ function App() {
 
             {/* Summary Agent Card */}
             <M3Card title="Incident Narrative" className="bg-surface-variant/20 border border-outline/10">
-              <div className="flex items-center gap-2 text-primary mb-4">
+              <div className="flex items-center gap-2 text-primary mb-6">
                 <LayoutDashboard className="w-5 h-5" />
                 <span className="text-xs font-bold uppercase tracking-widest opacity-80">Executive Summary</span>
               </div>
-              <div className="p-5 rounded-2xl bg-surface shadow-elevation-1 italic opacity-95 leading-relaxed text-sm border border-outline/5">
+              <div className="p-6 rounded-2xl bg-surface shadow-elevation-1 italic opacity-95 leading-relaxed text-sm border border-outline/5">
                 "{result.summary?.what_happened}"
               </div>
-              <div className="flex items-center justify-between mt-4 p-4 rounded-2xl bg-secondary-container/20 border border-outline/5">
-                <span className="text-xs font-bold uppercase tracking-widest opacity-60">Status</span>
-                <span className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${
-                  result.summary?.current_status?.includes('ONGOING') ? 'bg-error text-on-error' : 'bg-primary text-on-primary'
-                } shadow-elevation-1`}>
+              <div className={`mt-8 p-6 rounded-2xl border-l-4 shadow-sm ${
+                result.summary?.current_status?.includes('ONGOING') 
+                  ? 'bg-error-container/20 border-error text-on-error-container' 
+                  : 'bg-primary-container/20 border-primary text-on-primary-container'
+              }`}>
+                <div className="flex items-center gap-2 mb-2 opacity-70">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Official Status</span>
+                </div>
+                <p className="text-sm font-bold leading-relaxed tracking-wide uppercase">
                   {result.summary?.current_status}
-                </span>
+                </p>
               </div>
             </M3Card>
 
             {/* Comms Agent Card */}
             <M3Card title="Communications" className="bg-surface-variant/20 border border-outline/10">
-              <div className="flex items-center gap-2 text-tertiary mb-4">
+              <div className="flex items-center gap-2 text-tertiary mb-6">
                 <MessageSquare className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Stakeholder Updates</span>
+                <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Stakeholder Updates</span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-8">
                 <div className="group relative">
-                  <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest ml-1 mb-1 block">Slack Update Template</label>
-                  <div className="relative">
-                    <pre className="p-5 rounded-2xl bg-surface shadow-elevation-1 text-xs opacity-90 whitespace-pre-wrap font-mono border border-outline/5 overflow-x-auto">
-                      {result.comms?.slack_update}
-                    </pre>
+                  <div className="flex items-center justify-between ml-1 mb-3">
+                    <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] opacity-70">Slack Update Template</label>
                     <button 
                       onClick={() => copyToClipboard(result.comms?.slack_update || '')}
-                      className="absolute top-4 right-4 p-2 rounded-xl bg-primary-container text-on-primary-container shadow-elevation-1 hover:shadow-elevation-2 transition-all cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider shadow-sm hover:shadow-elevation-1 transition-all cursor-pointer"
                     >
-                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? 'Copied' : 'Copy Template'}
                     </button>
+                  </div>
+                  <div className="relative">
+                    <pre className="p-6 rounded-2xl bg-surface/50 shadow-inner text-sm leading-relaxed opacity-95 whitespace-pre-wrap border border-outline/10 overflow-x-auto text-on-surface">
+                      {result.comms?.slack_update}
+                    </pre>
                   </div>
                 </div>
               </div>
@@ -138,16 +145,18 @@ function App() {
 
             {/* PIR Agent Card */}
             <M3Card title="Post-Incident Report" className="bg-surface-variant/20 border border-outline/10">
-              <div className="flex items-center gap-2 text-secondary mb-4">
+              <div className="flex items-center gap-2 text-secondary mb-6">
                 <ClipboardList className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-widest opacity-80">Timeline Draft</span>
+                <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Timeline Draft</span>
               </div>
-              <div className="relative pl-8 space-y-6 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[2px] before:bg-outline/20 before:rounded-full">
+              <div className="relative pl-9 space-y-4 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-primary/10 before:rounded-full">
                 {result.post_incident_report?.timeline?.map((event: any, i: number) => (
-                  <div key={i} className="relative">
-                    <div className="absolute left-[-26px] top-1.5 w-4 h-4 rounded-full bg-surface border-2 border-primary shadow-elevation-1" />
-                    <span className="text-[10px] font-bold text-primary block mb-1">{event.time}</span>
-                    <p className="text-xs font-medium text-on-surface opacity-90 leading-normal">{event.event}</p>
+                  <div key={i} className="relative group">
+                    <div className="absolute left-[-32px] top-1.5 w-4 h-4 rounded-full bg-surface border-4 border-primary shadow-elevation-1 transition-transform group-hover:scale-110" />
+                    <div className="bg-surface/40 p-4 rounded-xl border border-outline/5 hover:border-outline/20 transition-all hover:shadow-elevation-1">
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1">{event.time}</span>
+                      <p className="text-sm font-medium text-on-surface leading-relaxed">{event.event}</p>
+                    </div>
                   </div>
                 ))}
               </div>

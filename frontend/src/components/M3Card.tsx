@@ -16,7 +16,7 @@ export const M3Card = ({ children, title, className = "", variant = 'elevated' }
 
   return (
     <div className={`m3-card ${variantClass} ${className}`}>
-      {title && <h3 className="text-xl font-medium mb-4 text-on-surface opacity-90">{title}</h3>}
+      {title && <h3 className="text-xl font-medium mb-6 text-on-surface opacity-90">{title}</h3>}
       {children}
     </div>
   );
