@@ -1,7 +1,7 @@
 import { MagicBox } from './components/MagicBox';
 import { GlassCard } from './components/GlassCard';
 import { useIncidentAnalysis } from './hooks/useIncidentAnalysis';
-import { Activity, LayoutDashboard, MessageSquare, ClipboardList, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Activity, LayoutDashboard, MessageSquare, ClipboardList, AlertCircle } from 'lucide-react';
 
 function App() {
   const { analyze, result, loading, error } = useIncidentAnalysis();

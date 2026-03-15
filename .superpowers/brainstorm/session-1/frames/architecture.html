@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Podman Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .container { border: 2px dashed #ccc; padding: 20px; border-radius: 8px; }
+        .service { border: 1px solid #333; padding: 15px; border-radius: 4px; background: #f9f9f9; }
+    </style>
+</head>
+<body class="p-8 bg-gray-50">
+    <h1 class="text-2xl font-bold mb-6">Proposed Podman Architecture</h1>
+    <div class="grid grid-cols-2 gap-8">
+        <div class="service">
+            <h2 class="font-bold text-blue-600">Frontend (Vite)</h2>
+            <p class="text-sm text-gray-600">Port: 5173</p>
+            <ul class="mt-2 list-disc list-inside text-xs">
+                <li>Hot Module Replacement (HMR)</li>
+                <li>Proxies /api to Backend</li>
+            </ul>
+        </div>
+        <div class="service">
+            <h2 class="font-bold text-green-600">Backend (FastAPI)</h2>
+            <p class="text-sm text-gray-600">Port: 8000</p>
+            <ul class="mt-2 list-disc list-inside text-xs">
+                <li>Python 3.11 + LangGraph</li>
+                <li>API Layer</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mt-8 p-4 bg-yellow-100 rounded">
+        <strong>Orchestration:</strong> Podman Compose / Docker Compose
+    </div>
+</body>
+</html>

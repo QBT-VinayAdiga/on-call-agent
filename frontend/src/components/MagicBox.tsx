@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { GlassCard } from './GlassCard';
 
 export const MagicBox = ({ onAnalyze }: { onAnalyze: (text: string) => void }) => {

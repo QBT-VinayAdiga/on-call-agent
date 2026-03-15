@@ -4,11 +4,12 @@ WORKDIR /app/frontend
 
 # Copy frontend dependency files
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm install -g pnpm
+RUN pnpm install    
 
 # Copy frontend source and build
 COPY frontend/ ./
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Final image with Python backend
 FROM python:3.11-slim
