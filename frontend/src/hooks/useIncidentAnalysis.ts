@@ -10,6 +10,7 @@ export const useIncidentAnalysis = () => {
   const analyze = async (text: string, provider: Provider = 'openrouter') => {
     setLoading(true);
     setError(null);
+    setResult(null);
     try {
       // 1. Structure raw data via the new backend endpoint
       const structRes = await fetch('/api/structure', {
