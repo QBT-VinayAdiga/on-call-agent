@@ -55,9 +55,11 @@ INCIDENT_INPUT_SCHEMA: dict = {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "value": {"type": "number"},
-                    "unit": {"type": "string"},
-                    "timestamp": {"type": "string", "format": "date-time"}
+                    "value": {"type": ["number", "null"]},
+                    "unit": {"type": ["string", "null"]},
+                    "timestamp": {"type": ["string", "null"], "format": "date-time"},
+                    "window": {"type": ["string", "null"]},
+                    "values_summary": {"type": ["string", "null"]}
                 }
             }
         },
